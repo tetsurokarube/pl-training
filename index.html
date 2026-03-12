@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="ja"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>損益計算書の基礎と勘定科目研修</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+      "Hiragino Sans", "Hiragino Kana Gothic ProN", Meiryo, sans-serif;
+    color: #37352f;
+    background: #fff;
+    display: flex;
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    width: 240px;
+    min-height: 100vh;
+    background: #191919;
+    position: fixed;
+    top: 0; left: 0;
+    overflow-y: auto;
+    padding: 8px 0 40px;
+    z-index: 100;
+    flex-shrink: 0;
+  }
+
+  .sidebar-workspace {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    margin-bottom: 4px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .sidebar-workspace:hover { background: #2f2f2f; }
+  .sidebar-workspace-icon {
+    width: 24px; height: 24px;
+    background: #555;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: #fff; flex-shrink: 0;
+  }
+  .sidebar-workspace-name { font-size: 14px; font-weight: 600; color: #e3e3e1; }
+
+  .sidebar-section-label {
+    padding: 6px 12px 3px;
+    font-size: 11px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.28);
+    letter-spacing: 0.03em;
+    margin-top: 8px;
+  }
+
+  .sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    font-size: 13.5px;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    border-radius: 4px;
+    margin: 0 4px;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sidebar-item:hover { background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.85); }
+  .sidebar-item.active { background: rgba(255,255,255,0.12); color: #fff; }
+  .sidebar-item .s-icon { font-size: 14px; flex-shrink: 0; opacity: 0.7; }
+  .sidebar-item .s-text { overflow: hidden; text-overflow: ellipsis; }
+
+  /* ===== MAIN ===== */
+  .main {
+    margin-left: 240px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .page-wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 96px 96px 200px;
+  }
+  @media (max-width: 860px) {
+    .page-wrap { padding: 48px 24px 100px; }
+  }
+
+  /* ===== PAGE HEADER ===== */
+  .page-cover {
+    height: 160px;
+    background: #f0f0ef;
+    margin-left: -96px;
+    margin-right: -96px;
+    margin-top: -96px;
+    margin-bottom: 0;
+    display: flex;
+    align-items: flex-end;
+  }
+  @media (max-width: 860px) {
+    .page-cover { margin-left: -24px; margin-right: -24px; margin-top: -48px; }
+  }
+
+  .page-icon-wrap { margin-top: 24px; }
+  .page-icon { font-size: 72px; line-height: 1; display: block; }
+
+  .page-title {
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #37352f;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+  }
+
+  /* ===== PROPERTIES ===== */
+  .properties {
+    margin: 20px 0 28px;
+    border-top: 1px solid #e9e9e7;
+  }
+  .prop-row {
+    display: flex;
+    align-items: center;
+    min-height: 34px;
+    border-bottom: 1px solid #f0f0ef;
+    font-size: 14px;
+  }
+  .prop-key {
+    width: 160px;
+    flex-shrink: 0;
+    color: rgba(55,53,47,0.5);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px 4px 0;
+  }
+  .prop-val {
+    flex: 1;
+    color: #37352f;
+    padding: 4px 8px;
+  }
+
+  /* ===== TYPOGRAPHY ===== */
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #37352f;
+    margin: 40px 0 4px;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+  h1.h1-divider {
+    border-top: 1px solid #e9e9e7;
+    padding-top: 20px;
+    margin-top: 48px;
+  }
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #37352f;
+    margin: 28px 0 4px;
+    letter-spacing: -0.005em;
+    line-height: 1.4;
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #37352f;
+    margin: 20px 0 4px;
+  }
+  p { margin: 4px 0 8px; color: #37352f; }
+
+  /* ===== DIVIDER ===== */
+  .divider {
+    border: none;
+    border-top: 1px solid #e9e9e7;
+    margin: 32px 0;
+  }
+
+  /* ===== CALLOUT ===== */
+  .callout {
+    display: flex;
+    gap: 10px;
+    padding: 14px 16px;
+    border-radius: 4px;
+    margin: 8px 0;
+    font-size: 14.5px;
+    line-height: 1.6;
+  }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { flex: 1; }
+  .callout-body b { display: block; margin-bottom: 2px; }
+
+  .callout.gray   { background: rgba(235,236,237,0.3); border: 1px solid rgba(55,53,47,0.09); }
+  .callout.yellow { background: #fef9e7; border: 1px solid #f5e27a; }
+  .callout.blue   { background: #e8f4fd; border: 1px solid #90cdf4; }
+  .callout.green  { background: #e9f7ef; border: 1px solid #9ae6b4; }
+  .callout.red    { background: #fef2f2; border: 1px solid #feb2b2; }
+  .callout.purple { background: #f5f3ff; border: 1px solid #c4b5fd; }
+  .callout.orange { background: #fff7ed; border: 1px solid #fed7aa; }
+
+  /* ===== TOGGLE ===== */
+  details.toggle { margin: 4px 0; }
+  details.toggle > summary {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 15px;
+    color: #37352f;
+    list-style: none;
+    user-select: none;
+    font-weight: 500;
+  }
+  details.toggle > summary::-webkit-details-marker { display: none; }
+  details.toggle > summary::before {
+    content: "▶";
+    font-size: 10px;
+    color: rgba(55,53,47,0.45);
+    transition: transform 0.15s;
+    flex-shrink: 0;
+  }
+  details.toggle[open] > summary::before { transform: rotate(90deg); }
+  details.toggle > summary:hover { background: rgba(55,53,47,0.06); }
+  .toggle-body { padding: 4px 0 4px 22px; }
+
+  /* ===== BULLET LIST ===== */
+  ul.blist { list-style: none; padding: 0; margin: 4px 0; }
+  ul.blist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 3px 0;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #37352f;
+  }
+  ul.blist li::before {
+    content: "•";
+    color: rgba(55,53,47,0.45);
+    margin-top: 1px;
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+
+  /* ===== NUMBERED LIST ===== */
+  ol.nlist { list-style: none; padding: 0; margin: 4px 0; counter-reset: nlist; }
+  ol.nlist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 3px 0;
+    font-size: 15px;
+    line-height: 1.65;
+    color: #37352f;
+    counter-increment: nlist;
+  }
+  ol.nlist li::before {
+    content: counter(nlist) ".";
+    color: rgba(55,53,47,0.45);
+    flex-shrink: 0;
+    min-width: 18px;
+    font-size: 14px;
+    margin-top: 2px;
+  }
+
+  /* ===== TABLE ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+    margin: 8px 0;
+  }
+  th {
+    background: #f7f6f3;
+    font-weight: 600;
+    padding: 8px 12px;
+    text-align: left;
+    border: 1px solid #e9e9e7;
+    color: rgba(55,53,47,0.7);
+    font-size: 13px;
+  }
+  td {
+    padding: 8px 12px;
+    border: 1px solid #e9e9e7;
+    vertical-align: top;
+    line-height: 1.55;
+  }
+  tr:hover td { background: #f9f9f7; }
+  .td-gray { color: rgba(55,53,47,0.5); font-size: 13px; }
+  .td-bold { font-weight: 500; }
+
+  /* ===== DATABASE-STYLE TAGS ===== */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+    margin: 1px;
+  }
+  .tag-default { background: rgba(227,226,224,0.5); color: #37352f; }
+  .tag-gray    { background: #e3e2e0; color: #4a4945; }
+  .tag-blue    { background: #d3e5ef; color: #183a4a; }
+  .tag-green   { background: #d3eedb; color: #1a3929; }
+  .tag-red     { background: #ffe2dd; color: #5a1a1a; }
+  .tag-orange  { background: #fadec9; color: #5a2a0c; }
+  .tag-yellow  { background: #fdecc8; color: #5a3a0c; }
+  .tag-purple  { background: #e8deee; color: #3a1a55; }
+  .tag-pink    { background: #f5e0e9; color: #5a1a35; }
+  .tag-teal    { background: #d3eeeb; color: #0a3630; }
+
+  /* ===== COLUMNS ===== */
+  .columns {
+    display: flex;
+    gap: 16px;
+    margin: 8px 0;
+  }
+  .col { flex: 1; min-width: 0; }
+  @media (max-width: 600px) {
+    .columns { flex-direction: column; }
+  }
+
+  /* ===== INLINE CODE ===== */
+  code {
+    background: rgba(135,131,120,0.15);
+    border-radius: 3px;
+    padding: 2px 5px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 85%;
+    color: #eb5757;
+  }
+
+  /* ===== QUOTE ===== */
+  blockquote {
+    border-left: 3px solid rgba(55,53,47,0.45);
+    margin: 8px 0;
+    padding: 4px 0 4px 14px;
+    color: rgba(55,53,47,0.7);
+    font-size: 15px;
+  }
+
+  /* ===== ANSWER / HINT BLOCKS (Notion-styled) ===== */
+  .answer-reveal {
+    background: #eef9f0;
+    border-radius: 4px;
+    padding: 12px 16px;
+    margin: 6px 0;
+    font-size: 14.5px;
+    border-left: 3px solid #6dc57f;
+  }
+  .answer-reveal .label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: rgba(55,53,47,0.4);
+    margin-bottom: 4px;
+  }
+  .answer-reveal .text { font-weight: 500; color: #1a7a3e; font-size: 15px; }
+
+  .note-reveal {
+    background: rgba(235,236,237,0.3);
+    border-radius: 4px;
+    padding: 10px 14px;
+    margin: 4px 0;
+    font-size: 13.5px;
+    color: rgba(55,53,47,0.6);
+    border: 1px solid rgba(55,53,47,0.08);
+  }
+
+  /* ===== P/L TABLE ===== */
+  .pl-indent { padding-left: 24px !important; }
+  .pl-subtotal td { background: #f0f0ef; font-weight: 600; }
+  .pl-total td { background: #37352f; color: #fff; font-weight: 700; }
+  .pl-note { color: rgba(55,53,47,0.45); font-size: 13px; }
+
+  /* ===== CARD GRID ===== */
+  .card-grid {
+    display: grid;
+    gap: 8px;
+    margin: 8px 0;
+  }
+  .card-grid.g2 { grid-template-columns: 1fr 1fr; }
+  .card-grid.g3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card-grid.g5 { grid-template-columns: repeat(5, 1fr); }
+  @media (max-width: 600px) {
+    .card-grid.g2, .card-grid.g3, .card-grid.g5 { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: #f7f6f3;
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .card-head {
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .card-desc { color: rgba(55,53,47,0.6); font-size: 13px; }
+
+  /* ===== STEPS ===== */
+  .steps { margin: 8px 0; }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin: 4px 0;
+  }
+  .step:hover { background: rgba(55,53,47,0.04); }
+  .step-num {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: rgba(55,53,47,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(55,53,47,0.6);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-label { font-weight: 500; font-size: 15px; }
+  .step-desc { font-size: 13.5px; color: rgba(55,53,47,0.6); margin-top: 1px; }
+
+  /* ===== TOC ===== */
+  .toc {
+    background: #f7f6f3;
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin: 16px 0 32px;
+    font-size: 14px;
+  }
+  .toc-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(55,53,47,0.4);
+    margin-bottom: 8px;
+  }
+  .toc a {
+    display: block;
+    color: rgba(55,53,47,0.7);
+    text-decoration: none;
+    padding: 3px 4px;
+    border-radius: 3px;
+    font-size: 13.5px;
+  }
+  .toc a:hover { background: rgba(55,53,47,0.06); color: #37352f; }
+  .toc .toc-sub { padding-left: 14px; }
+
+  /* ===== SECTION HEADER ===== */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 48px 0 4px;
+    padding-top: 24px;
+    border-top: 1px solid #e9e9e7;
+  }
+  .section-header h1 {
+    margin: 0;
+    padding: 0;
+    border: none;
+    font-size: 26px;
+  }
+
+  /* ===== MISC ===== */
+  .text-gray { color: rgba(55,53,47,0.5); }
+  .text-sm { font-size: 13px; }
+  strong { font-weight: 600; }
+
+  html { scroll-behavior: smooth; }
+
+  /* ===== B/S DIAGRAM ===== */
+  .bs-wrap { margin: 16px 0; font-size: 13.5px; page-break-inside: avoid; }
+  .bs-title-bar {
+    background: #37352f; color: #fff;
+    text-align: center; padding: 8px 12px;
+    font-weight: 600; font-size: 13px;
+    border-radius: 6px 6px 0 0;
+  }
+  .bs-columns {
+    display: flex; border: 1px solid #e9e9e7; border-top: none;
+    border-radius: 0 0 0 0; overflow: hidden;
+  }
+  .bs-col { flex: 1; padding: 12px 14px; }
+  .bs-col-l { border-right: 2px solid #e9e9e7; }
+  .bs-col-label {
+    font-weight: 700; font-size: 12px; letter-spacing: 0.04em;
+    margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid #e9e9e7;
+  }
+  .bs-col-label.blue { color: #2563eb; }
+  .bs-col-label.red  { color: #dc2626; }
+  .bs-col-label.green{ color: #16a34a; }
+  .bs-group { margin-bottom: 10px; }
+  .bs-group-name { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
+  .bs-group-item { font-size: 12px; color: rgba(55,53,47,0.55); padding: 1px 0 1px 12px; }
+  .bs-total-row { display: flex; border-top: 2px solid #37352f; border-radius: 0 0 6px 6px; overflow: hidden; }
+  .bs-total-cell {
+    flex: 1; padding: 8px 14px;
+    font-weight: 700; font-size: 13px; background: #f0f0ef;
+  }
+  .bs-total-cell:first-child { border-right: 2px solid #37352f; color: #2563eb; }
+  .bs-total-cell:last-child { color: #dc2626; }
+
+  /* ===== P/L FLOW DIAGRAM ===== */
+  .pl-flow { margin: 16px 0; page-break-inside: avoid; }
+  .pl-flow-item { display: flex; align-items: center; margin: 3px 0; }
+  .pl-flow-op {
+    width: 28px; text-align: center;
+    font-size: 15px; font-weight: 700;
+    color: rgba(55,53,47,0.4); flex-shrink: 0;
+  }
+  .pl-flow-box {
+    flex: 1; padding: 8px 14px; border-radius: 4px;
+    font-size: 13.5px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .pl-flow-name { font-weight: 500; }
+  .pl-flow-note { font-size: 12px; color: rgba(55,53,47,0.5); }
+  .pl-flow-box.revenue { background: #dbeafe; }
+  .pl-flow-box.cost    { background: #fee2e2; }
+  .pl-flow-box.sub     { background: #f0f0ef; font-weight: 600; }
+  .pl-flow-box.final   { background: #37352f; color: #fff; font-weight: 700; }
+  .pl-flow-box.final .pl-flow-note { color: rgba(255,255,255,0.6); }
+
+  /* ===== PRINT ===== */
+  @media print {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .page-wrap { padding: 30px 40px 60px; max-width: 100%; }
+    .page-cover { margin-left: -40px; margin-right: -40px; margin-top: -30px; }
+    .section-header { page-break-before: always; }
+    .callout, .card-grid, table, .steps, .bs-wrap, .pl-flow,
+    details.toggle, .answer-reveal, .note-reveal { page-break-inside: avoid; }
+    details.toggle { display: block; }
+    details.toggle > summary::before { content: "▶"; }
+    h2 { page-break-after: avoid; }
+    hr.divider { page-break-after: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-workspace">
+    <div class="sidebar-workspace-icon">📒</div>
+    <div class="sidebar-workspace-name">研修資料</div>
+  </div>
+
+  <div class="sidebar-section-label">ページ</div>
+  <a class="sidebar-item active" href="#top"><span class="s-icon">📒</span><span class="s-text">損益計算書の基礎研修</span></a>
+
+  <div class="sidebar-section-label">目次</div>
+  <a class="sidebar-item" href="#overview"><span class="s-icon">📋</span><span class="s-text">目的・アジェンダ</span></a>
+  <a class="sidebar-item" href="#icebreaker"><span class="s-icon">🧊</span><span class="s-text">アイスブレイク</span></a>
+  <a class="sidebar-item" href="#basics"><span class="s-icon">📚</span><span class="s-text">簿記の基礎</span></a>
+  <a class="sidebar-item" href="#pl"><span class="s-icon">📊</span><span class="s-text">損益計算書（P/L）</span></a>
+  <a class="sidebar-item" href="#exercises"><span class="s-icon">✏️</span><span class="s-text">演習（問題 1〜5）</span></a>
+  <a class="sidebar-item" href="#client"><span class="s-icon">🏢</span><span class="s-text">クライアントの違い</span></a>
+  <a class="sidebar-item" href="#summary"><span class="s-icon">✅</span><span class="s-text">まとめ</span></a>
+</nav>
+
+<!-- MAIN -->
+<div class="main">
+<div class="page-wrap" id="top">
+
+  <!-- PAGE ICON & TITLE -->
+  <div class="page-icon-wrap">
+    <span class="page-icon">📒</span>
+  </div>
+  <h1 class="page-title">損益計算書の基礎と勘定科目研修</h1>
+
+  <!-- PROPERTIES -->
+  <div class="properties">
+    <div class="prop-row">
+      <div class="prop-key">🗓 対象</div>
+      <div class="prop-val">新卒（簿記知識ほぼなし）</div>
+    </div>
+    <div class="prop-row">
+      <div class="prop-key">⏱ 研修時間</div>
+      <div class="prop-val">4時間</div>
+    </div>
+    <div class="prop-row">
+      <div class="prop-key">🏪 想定業種</div>
+      <div class="prop-val">飲食店</div>
+    </div>
+    <div class="prop-row">
+      <div class="prop-key">📌 形式</div>
+      <div class="prop-val">座学 ＋ ペアワーク</div>
+    </div>
+    <div class="prop-row">
+      <div class="prop-key">🎯 目的</div>
+      <div class="prop-val">損益計算書の基礎理解・勘定科目の判別・実務対応力の習得</div>
+    </div>
+  </div>
+
+  <!-- TOC -->
+  <div class="toc">
+    <div class="toc-title">目次</div>
+    <a href="#overview">研修の目的・アジェンダ</a>
+    <a href="#icebreaker">アイスブレイク</a>
+    <a href="#basics">簿記の基礎</a>
+    <a href="#pl" class="toc-sub">損益計算書（P/L）の全体構造</a>
+    <a href="#pl-sales" class="toc-sub">科目解説①　売上高・売上原価</a>
+    <a href="#pl-sga" class="toc-sub">科目解説②　販売費及び一般管理費</a>
+    <a href="#pl-other" class="toc-sub">科目解説③　営業外損益・特別損益</a>
+    <a href="#exercises">演習：科目判別ペアワーク（問題 1〜5）</a>
+    <a href="#client">クライアントによる科目の違い</a>
+    <a href="#summary">まとめ・振り返り</a>
+  </div>
+
+  <!-- ==================== -->
+  <!-- 目的・アジェンダ -->
+  <!-- ==================== -->
+  <div class="section-header" id="overview">
+    <h1>📋 研修の目的・アジェンダ</h1>
+  </div>
+
+  <div class="callout blue">
+    <span class="callout-icon">🎯</span>
+    <div class="callout-body">
+      <b>研修の目的</b>
+      1. 損益計算書（P/L）の基礎概念を理解する<br>
+      2. 各取引に対して適切な勘定科目を判別できる<br>
+      3. クライアントによって勘定科目名が異なることを理解し、実務に対応できる
+    </div>
+  </div>
+
+  <h2>本日のスケジュール</h2>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:140px">時間</th>
+        <th>内容</th>
+        <th style="width:180px">形式</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="td-gray">00:00〜00:30</td>
+        <td class="td-bold">アイスブレイク・ペアワーク</td>
+        <td class="td-gray">お金の流れを話し合おう</td>
+      </tr>
+      <tr>
+        <td class="td-gray">00:30〜01:00</td>
+        <td class="td-bold">簿記の基礎</td>
+        <td class="td-gray">借方・貸方・5要素 ＋ ミニQ&amp;A</td>
+      </tr>
+      <tr>
+        <td class="td-gray">01:00〜01:30</td>
+        <td class="td-bold">損益計算書とは</td>
+        <td class="td-gray">全体構造の理解</td>
+      </tr>
+      <tr>
+        <td class="td-gray" style="color:#d1d5db">01:30〜01:40</td>
+        <td class="td-gray">☕ 休憩</td>
+        <td></td>
+      </tr>
+      <tr>
+        <td class="td-gray">01:40〜02:10</td>
+        <td class="td-bold">損益計算書の全科目解説</td>
+        <td class="td-gray">飲食店の具体例つき</td>
+      </tr>
+      <tr>
+        <td class="td-gray">02:10〜03:20</td>
+        <td class="td-bold">✏️ 演習：科目判別ペアワーク</td>
+        <td class="td-gray">ペア議論 → 発表 → FB</td>
+      </tr>
+      <tr>
+        <td class="td-gray">03:20〜03:50</td>
+        <td class="td-bold">クライアントによる科目の違い</td>
+        <td class="td-gray">実例 ＋ ディスカッション</td>
+      </tr>
+      <tr>
+        <td class="td-gray">03:50〜04:00</td>
+        <td class="td-bold">まとめ・振り返り・Q&amp;A</td>
+        <td class="td-gray">全体</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- ==================== -->
+  <!-- アイスブレイク -->
+  <!-- ==================== -->
+  <div class="section-header" id="icebreaker">
+    <h1>🧊 アイスブレイク</h1>
+  </div>
+  <p class="text-gray text-sm">00:00〜00:30　ペアワーク</p>
+
+  <div class="callout yellow">
+    <span class="callout-icon">🤝</span>
+    <div class="callout-body">
+      <b>ペアワーク（3分）</b>
+      「飲食店を経営するとしたら、どんなお金の出入りがあるか？」<br>
+      思いつく限り挙げてみよう！
+    </div>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-label">ペアになる</div>
+        <div class="step-desc">隣の人とペアを組んでください</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-label">話し合い（3分）</div>
+        <div class="step-desc">飲食店のお金の出入りをできるだけ多く挙げる</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-label">全体発表</div>
+        <div class="step-desc">各ペアから1〜2個、全体に共有</div>
+      </div>
+    </div>
+  </div>
+
+  <details class="toggle">
+    <summary>ファシリテーターメモ</summary>
+    <div class="toggle-body">
+      <ul class="blist">
+        <li>出てきたキーワード例：売上（料理・ドリンク）、食材仕入れ、家賃、人件費、光熱費、広告費 など</li>
+        <li>「それ、実は会計では○○科目って言うんです！」と後の解説に自然につなげる</li>
+        <li>発言を板書や画面に残すと科目解説へのブリッジになる</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- ==================== -->
+  <!-- 簿記の基礎 -->
+  <!-- ==================== -->
+  <div class="section-header" id="basics">
+    <h1>📚 簿記の基礎</h1>
+  </div>
+  <p class="text-gray text-sm">00:30〜01:00</p>
+
+  <h2>会計とは何か</h2>
+  <p>会計とは「<strong>お金の動きを記録・整理・報告する仕組み</strong>」です。</p>
+
+  <div class="card-grid g3">
+    <div class="card">
+      <div class="card-head">📝 記録する</div>
+      <div class="card-desc">日々の取引を仕訳として記録する</div>
+    </div>
+    <div class="card">
+      <div class="card-head">🗂 整理する</div>
+      <div class="card-desc">科目ごとに集計して帳簿をつくる</div>
+    </div>
+    <div class="card">
+      <div class="card-head">📊 報告する</div>
+      <div class="card-desc">損益計算書・貸借対照表などの決算書を作成する</div>
+    </div>
+  </div>
+
+  <h3>なぜ必要なの？</h3>
+  <ul class="blist">
+    <li>経営者が「もうかっているか」を確認するため</li>
+    <li>税金の計算のため</li>
+    <li>取引先・銀行に経営状況を示すため</li>
+  </ul>
+
+  <div class="callout yellow">
+    <span class="callout-icon">💬</span>
+    <div class="callout-body">
+      <b>ミニQ&amp;A（受講者への問いかけ）</b>
+      「みなさんなら、飲食店を経営したとき、どの数字を一番知りたいですか？」<br>
+      → 自由に発言してもらい、その回答が P/L のどこに出てくるか予告する
+    </div>
+  </div>
+
+  <h2>会計の5要素</h2>
+  <p>すべての取引は、以下の5つの要素のいずれかに分類されます。</p>
+
+  <div class="card-grid g5">
+    <div class="card">
+      <div class="card-head">🏦 資産</div>
+      <div class="card-desc">会社が持っているもの<br>現金、食材在庫、厨房設備 など</div>
+    </div>
+    <div class="card">
+      <div class="card-head">📋 負債</div>
+      <div class="card-desc">返さないといけないもの<br>買掛金、借入金 など</div>
+    </div>
+    <div class="card">
+      <div class="card-head">💎 純資産</div>
+      <div class="card-desc">資産 - 負債の自己資本<br>資本金 など</div>
+    </div>
+    <div class="card" style="border: 1.5px solid #6dc5b8;">
+      <div class="card-head">📈 収益</div>
+      <div class="card-desc">入ってくるもの<br>売上高、受取利息 など</div>
+    </div>
+    <div class="card" style="border: 1.5px solid #6dc5b8;">
+      <div class="card-head">📉 費用</div>
+      <div class="card-desc">かかるもの<br>仕入、給料、家賃 など</div>
+    </div>
+  </div>
+
+  <h3>決算書の2つの柱</h3>
+  <p>会計では主に2種類の決算書が使われます。今日は <strong>損益計算書（P/L）</strong> を中心に学びます。</p>
+
+  <div class="bs-wrap">
+    <div class="bs-title-bar">貸借対照表（B/S：Balance Sheet）のイメージ　　※ある時点のスナップショット</div>
+    <div class="bs-columns">
+      <div class="bs-col bs-col-l">
+        <div class="bs-col-label blue">資産の部　― 会社が持っているもの</div>
+        <div class="bs-group">
+          <div class="bs-group-name">流動資産</div>
+          <div class="bs-group-item">現金・預金</div>
+          <div class="bs-group-item">売掛金（未回収の売上）</div>
+          <div class="bs-group-item">棚卸資産（在庫）</div>
+        </div>
+        <div class="bs-group">
+          <div class="bs-group-name">固定資産</div>
+          <div class="bs-group-item">建物・内装</div>
+          <div class="bs-group-item">厨房機器・設備</div>
+          <div class="bs-group-item">敷金・保証金</div>
+        </div>
+      </div>
+      <div class="bs-col">
+        <div class="bs-col-label red">負債の部　― 返さなければならないもの</div>
+        <div class="bs-group">
+          <div class="bs-group-name">流動負債</div>
+          <div class="bs-group-item">買掛金（未払いの仕入）</div>
+          <div class="bs-group-item">未払費用</div>
+        </div>
+        <div class="bs-group">
+          <div class="bs-group-name">固定負債</div>
+          <div class="bs-group-item">長期借入金</div>
+        </div>
+        <div style="border-top:1px solid #e9e9e7; margin: 10px 0;"></div>
+        <div class="bs-col-label green">純資産の部　― 自己資本</div>
+        <div class="bs-group">
+          <div class="bs-group-item">資本金</div>
+          <div class="bs-group-item">利益剰余金（蓄積された利益）</div>
+        </div>
+      </div>
+    </div>
+    <div class="bs-total-row">
+      <div class="bs-total-cell">資産合計</div>
+      <div class="bs-total-cell">負債 ＋ 純資産　合計　（必ず一致）</div>
+    </div>
+  </div>
+
+  <div class="callout blue">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body">
+      本日のメインは <strong>「収益」と「費用」</strong> ＝ 損益計算書（P/L）の世界！
+    </div>
+  </div>
+
+  <div class="callout yellow">
+    <span class="callout-icon">🤝</span>
+    <div class="callout-body">
+      <b>ペアで確認</b>
+      「以下の3つはそれぞれ5要素のどれ？」<br>
+      ① お店の厨房設備（冷蔵庫）　② 食材仕入れの未払い分　③ 今月の料理の売上
+    </div>
+  </div>
+  <details class="toggle">
+    <summary>解答を見る</summary>
+    <div class="toggle-body">
+      <div class="answer-reveal">
+        <div class="label">解答</div>
+        <div class="text">① <strong>資産</strong>（会社が持っているもの）　② <strong>負債</strong>（返さないといけないもの）　③ <strong>収益</strong>（入ってくるもの）</div>
+      </div>
+    </div>
+  </details>
+
+  <h2>借方・貸方とは</h2>
+  <p>仕訳は必ず「借方（左）」と「貸方（右）」の2面で記録します。<strong>借方合計 ＝ 貸方合計（必ず一致）</strong></p>
+
+  <div class="columns">
+    <div class="col">
+      <div class="card" style="background:#f0f0ef; text-align:center">
+        <div class="card-head" style="justify-content:center; font-size:16px">借方（かりかた）＝ 左</div>
+        <div class="card-desc" style="text-align:center">資産の増加・費用の発生</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card" style="background:#f0f0ef; text-align:center">
+        <div class="card-head" style="justify-content:center; font-size:16px">貸方（かしかた）＝ 右</div>
+        <div class="card-desc" style="text-align:center">負債の増加・収益の発生・資産の減少</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>例）食材を2万円、現金で仕入れた</h3>
+  <table>
+    <thead>
+      <tr><th>借方（左）</th><th>金額</th><th>貸方（右）</th><th>金額</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>仕入</strong></td>
+        <td>20,000円</td>
+        <td><strong>現金</strong></td>
+        <td>20,000円</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout blue">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body">今日の研修では仕訳の細かい作業より「<strong>どの科目か</strong>」の判断力を鍛えます！</div>
+  </div>
+
+  <div class="callout yellow">
+    <span class="callout-icon">🤝</span>
+    <div class="callout-body">
+      <b>ペアで仕訳してみよう</b>
+      「水道代1万円を現金で払った」<br>
+      → 借方は何？　貸方は何？
+    </div>
+  </div>
+  <details class="toggle">
+    <summary>解答を見る</summary>
+    <div class="toggle-body">
+      <div class="answer-reveal">
+        <div class="label">解答</div>
+        <div class="text">借方：<strong>水道光熱費　10,000円</strong>　／　貸方：<strong>現金　10,000円</strong></div>
+      </div>
+      <div class="note-reveal">💡 「費用が発生（借方）」して「現金が減った（貸方）」</div>
+    </div>
+  </details>
+
+  <!-- ==================== -->
+  <!-- 損益計算書 -->
+  <!-- ==================== -->
+  <div class="section-header" id="pl">
+    <h1>📊 損益計算書（P/L）</h1>
+  </div>
+  <p class="text-gray text-sm">01:00〜02:10</p>
+
+  <p>損益計算書（P/L：Profit &amp; Loss Statement）とは、一定期間の「収益」と「費用」をまとめ、利益を算出する決算書です。</p>
+
+  <div class="pl-flow">
+    <div class="pl-flow-item">
+      <div class="pl-flow-op"></div>
+      <div class="pl-flow-box revenue">
+        <span class="pl-flow-name">① 売上高</span>
+        <span class="pl-flow-note">料理・ドリンクの売上</span>
+      </div>
+    </div>
+    <div class="pl-flow-item">
+      <div class="pl-flow-op">ー</div>
+      <div class="pl-flow-box cost">
+        <span class="pl-flow-name">② 売上原価</span>
+        <span class="pl-flow-note">食材・飲料の仕入れ</span>
+      </div>
+    </div>
+    <div class="pl-flow-item">
+      <div class="pl-flow-op">＝</div>
+      <div class="pl-flow-box sub">
+        <span class="pl-flow-name">売上総利益（粗利）</span>
+        <span class="pl-flow-note">① ー ②</span>
+      </div>
+    </div>
+    <div class="pl-flow-item">
+      <div class="pl-flow-op">ー</div>
+      <div class="pl-flow-box cost">
+        <span class="pl-flow-name">③ 販売費及び一般管理費</span>
+        <span class="pl-flow-note">家賃・給料・光熱費 など</span>
+      </div>
+    </div>
+    <div class="pl-flow-item">
+      <div class="pl-flow-op">＝</div>
+      <div class="pl-flow-box sub">
+        <span class="pl-flow-name">営業利益</span>
+        <span class="pl-flow-note">本業での稼ぎ</span>
+      </div>
+    </div>
+    <div class="pl-flow-item">
+      <div class="pl-flow-op">±</div>
+      <div class="pl-flow-box cost">
+        <span class="pl-flow-name">④ 営業外損益</span>
+        <span class="pl-flow-note">受取利息・支払利息 など</span>
+      </div>
+    </div>
+    <div class="pl-flow-item">
+      <div class="pl-flow-op">＝</div>
+      <div class="pl-flow-box sub">
+        <span class="pl-flow-name">経常利益</span>
+        <span class="pl-flow-note">通常の事業活動での利益</span>
+      </div>
+    </div>
+    <div class="pl-flow-item">
+      <div class="pl-flow-op">±</div>
+      <div class="pl-flow-box cost">
+        <span class="pl-flow-name">⑤ 特別損益</span>
+        <span class="pl-flow-note">設備売却益・災害損失 など</span>
+      </div>
+    </div>
+    <div class="pl-flow-item">
+      <div class="pl-flow-op">＝</div>
+      <div class="pl-flow-box final">
+        <span class="pl-flow-name">当期純利益</span>
+        <span class="pl-flow-note">最終的な利益</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>詳細な科目の内訳</h3>
+  <table>
+    <tbody>
+      <tr>
+        <td><strong>売上高</strong></td>
+        <td class="pl-note">料理・ドリンクの売上</td>
+      </tr>
+      <tr>
+        <td class="pl-indent">－　売上原価</td>
+        <td class="pl-note">食材の仕入代金</td>
+      </tr>
+      <tr class="pl-subtotal">
+        <td>＝　売上総利益（粗利）</td>
+        <td class="pl-note">売上高 - 売上原価</td>
+      </tr>
+      <tr>
+        <td class="pl-indent">－　販売費・一般管理費</td>
+        <td class="pl-note">家賃・給料・光熱費 など</td>
+      </tr>
+      <tr class="pl-subtotal">
+        <td>＝　営業利益</td>
+        <td class="pl-note">本業での稼ぎ</td>
+      </tr>
+      <tr>
+        <td class="pl-indent">±　営業外損益</td>
+        <td class="pl-note">受取利息・支払利息 など</td>
+      </tr>
+      <tr class="pl-subtotal">
+        <td>＝　経常利益</td>
+        <td class="pl-note">通常の事業活動での利益</td>
+      </tr>
+      <tr>
+        <td class="pl-indent">±　特別損益</td>
+        <td class="pl-note">設備売却・災害損失 など</td>
+      </tr>
+      <tr class="pl-total">
+        <td>＝　当期純利益</td>
+        <td>最終的な利益</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 売上高・原価 -->
+  <h2 id="pl-sales">科目解説①　売上高・売上原価</h2>
+
+  <details class="toggle">
+    <summary>💰 売上高</summary>
+    <div class="toggle-body">
+      <ul class="blist">
+        <li>商品やサービスを提供して得た収入</li>
+        <li>飲食店なら「料理の販売」「ドリンクの販売」「テイクアウト」</li>
+        <li>レジを通ったすべての売上が対象</li>
+      </ul>
+    </div>
+  </details>
+
+  <details class="toggle">
+    <summary>🛒 仕入高（売上原価）</summary>
+    <div class="toggle-body">
+      <ul class="blist">
+        <li>売上を生むために使った商品・食材の費用</li>
+        <li>飲食店なら「食材・飲料の仕入代金」が主な内容</li>
+        <li>計算式：<code>期首在庫 ＋ 仕入 - 期末在庫 ＝ 売上原価</code></li>
+      </ul>
+    </div>
+  </details>
+
+  <div class="callout yellow">
+    <span class="callout-icon">🤝</span>
+    <div class="callout-body">
+      <b>ペアで考えよう</b>
+      「新しいランチメニューの食材を3万円分仕入れた」<br>
+      → どの科目？　なぜそう思う？
+    </div>
+  </div>
+  <details class="toggle">
+    <summary>解答を見る</summary>
+    <div class="toggle-body">
+      <div class="answer-reveal">
+        <div class="label">解答</div>
+        <div class="text">仕入高（売上原価）</div>
+      </div>
+      <div class="note-reveal">📌 売上を生み出すために使った食材・飲料の費用が売上原価。「仕入」「食材費」と呼ぶ会社もある。</div>
+    </div>
+  </details>
+
+  <!-- 販管費 -->
+  <h2 id="pl-sga">科目解説②　販売費及び一般管理費（飲食店の例）</h2>
+
+  <div class="card-grid g2">
+    <div class="card"><div class="card-head">給料手当</div><div class="card-desc">正社員の給与・賞与</div></div>
+    <div class="card"><div class="card-head">雑給</div><div class="card-desc">アルバイト・パートへの支払い</div></div>
+    <div class="card"><div class="card-head">法定福利費</div><div class="card-desc">社会保険料（会社負担分）</div></div>
+    <div class="card"><div class="card-head">地代家賃</div><div class="card-desc">店舗の家賃・駐車場代</div></div>
+    <div class="card"><div class="card-head">水道光熱費</div><div class="card-desc">電気・ガス・水道代</div></div>
+    <div class="card"><div class="card-head">通信費</div><div class="card-desc">電話・インターネット代</div></div>
+    <div class="card"><div class="card-head">広告宣伝費</div><div class="card-desc">チラシ・SNS・グルメサイト掲載費</div></div>
+    <div class="card"><div class="card-head">消耗品費</div><div class="card-desc">割り箸・ナプキン・洗剤など</div></div>
+    <div class="card"><div class="card-head">修繕費</div><div class="card-desc">設備・内装の修理費用</div></div>
+    <div class="card"><div class="card-head">減価償却費</div><div class="card-desc">厨房設備・内装を年数で按分</div></div>
+    <div class="card"><div class="card-head">外注費</div><div class="card-desc">業務委託・フリーランスへの報酬</div></div>
+    <div class="card"><div class="card-head">雑費</div><div class="card-desc">上記に当てはまらない少額費用</div></div>
+  </div>
+
+  <!-- 営業外・特別 -->
+  <h2 id="pl-other">科目解説③　営業外損益・特別損益</h2>
+
+  <div class="card-grid g2">
+    <div class="card">
+      <div class="card-head">📥 営業外収益</div>
+      <div class="card-desc">本業以外から得た収益<br>受取利息、雑収入（自販機手数料）など</div>
+    </div>
+    <div class="card">
+      <div class="card-head">📤 営業外費用</div>
+      <div class="card-desc">本業以外で発生した費用<br>支払利息（借入金の利息）など</div>
+    </div>
+    <div class="card">
+      <div class="card-head">⭐ 特別利益</div>
+      <div class="card-desc">臨時・例外的な利益<br>固定資産売却益（古い厨房機器を売却）</div>
+    </div>
+    <div class="card">
+      <div class="card-head">⚠️ 特別損失</div>
+      <div class="card-desc">臨時・例外的な損失<br>災害損失、固定資産除却損（廃棄）など</div>
+    </div>
+  </div>
+
+  <div class="callout yellow">
+    <span class="callout-icon">🤝</span>
+    <div class="callout-body">
+      <b>ペアで考えよう</b>
+      「開業10年の厨房フードプロセッサーを廃棄した」→ どの科目？
+    </div>
+  </div>
+  <details class="toggle">
+    <summary>解答を見る</summary>
+    <div class="toggle-body">
+      <div class="answer-reveal">
+        <div class="label">解答</div>
+        <div class="text">固定資産除却損（特別損失）</div>
+      </div>
+      <div class="note-reveal">📌 臨時・例外的な損失なので「特別損失」に区分。営業外費用ではない点に注意。</div>
+    </div>
+  </details>
+
+  <!-- ==================== -->
+  <!-- 演習 -->
+  <!-- ==================== -->
+  <div class="section-header" id="exercises">
+    <h1>✏️ 演習：科目判別ペアワーク</h1>
+  </div>
+  <p class="text-gray text-sm">02:10〜03:20　全5問</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-label">ペアで話し合い（各問5分）</div>
+        <div class="step-desc">取引シナリオを読み、「どの科目か」「なぜそう判断したか」を議論する</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-label">各ペア発表</div>
+        <div class="step-desc">科目名と判断理由を全体に発表。他のペアの意見も聞いてみよう</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-label">講師フィードバック</div>
+        <div class="step-desc">正解の解説 ＋「他業種では科目名がどう変わるか」を紹介</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout gray">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body">
+      <b>判断の手順（ヒント）</b>
+      ① 取引は「何を得た / 何を失ったか」を確認<br>
+      ② 5要素（資産・負債・純資産・収益・費用）のどれか？<br>
+      ③ 収益・費用なら → 損益計算書の科目表で探す
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 問題1 -->
+  <h2>問題 1 / 5　給与の支払い</h2>
+  <div class="callout gray">
+    <span class="callout-icon">📄</span>
+    <div class="callout-body">
+      飲食店の店長が、今月のアルバイトスタッフ10名分の給与として合計80万円を銀行振込で支払った。
+    </div>
+  </div>
+  <blockquote>ヒント：正社員の給与と区別されることが多い。アルバイト・パートへの支払いは？</blockquote>
+  <details class="toggle">
+    <summary>解答・フィードバックを見る</summary>
+    <div class="toggle-body">
+      <div class="answer-reveal">
+        <div class="label">解答例</div>
+        <div class="text">雑給（アルバイト給与）</div>
+      </div>
+      <div class="note-reveal">📌 会社によっては「給料手当」に含める場合も。クライアントの科目表を必ず確認！</div>
+    </div>
+  </details>
+
+  <hr class="divider">
+
+  <!-- 問題2 -->
+  <h2>問題 2 / 5　販促費用の処理</h2>
+  <div class="callout gray">
+    <span class="callout-icon">📄</span>
+    <div class="callout-body">
+      人気グルメサイトへの月額掲載料3万円と、近隣へのチラシ印刷・配布費用5万円を支払った。
+    </div>
+  </div>
+  <blockquote>ヒント：どちらも「お客様を呼び込むための費用」。同じ科目でまとめる？別々に計上する？</blockquote>
+  <details class="toggle">
+    <summary>解答・フィードバックを見る</summary>
+    <div class="toggle-body">
+      <div class="answer-reveal">
+        <div class="label">解答例</div>
+        <div class="text">広告宣伝費（どちらも販促目的のため同一科目でOK）</div>
+      </div>
+      <div class="note-reveal">📌 会社によっては「販売促進費」「PR費」と呼ぶことも。性質・金額で分けることもある。</div>
+    </div>
+  </details>
+
+  <hr class="divider">
+
+  <!-- 問題3 -->
+  <h2>問題 3 / 5　設備の修理費</h2>
+  <div class="callout gray">
+    <span class="callout-icon">📄</span>
+    <div class="callout-body">
+      店舗の冷蔵ショーケースが故障し、修理費用15万円を支払った。なお、この冷蔵庫は固定資産として計上済みである。
+    </div>
+  </div>
+  <blockquote>ヒント：「修繕」か「新たな資産の取得（資本的支出）」か。資産の価値を維持する修理であれば費用として扱う。</blockquote>
+  <details class="toggle">
+    <summary>解答・フィードバックを見る</summary>
+    <div class="toggle-body">
+      <div class="answer-reveal">
+        <div class="label">解答例</div>
+        <div class="text">修繕費（資産の価値を維持するための費用）</div>
+      </div>
+      <div class="note-reveal">📌 大規模な改良（価値向上）は固定資産に計上することも。判断が難しいケースはクライアントに確認。</div>
+    </div>
+  </details>
+
+  <hr class="divider">
+
+  <!-- 問題4 -->
+  <h2>問題 4 / 5　銀行からの利息</h2>
+  <div class="callout gray">
+    <span class="callout-icon">📄</span>
+    <div class="callout-body">
+      月末に銀行から通知が来た。事業用の銀行口座に利息が2,500円振り込まれていた。
+    </div>
+  </div>
+  <blockquote>ヒント：本業の売上ではない。本業以外から得た収益はどの区分？</blockquote>
+  <details class="toggle">
+    <summary>解答・フィードバックを見る</summary>
+    <div class="toggle-body">
+      <div class="answer-reveal">
+        <div class="label">解答例</div>
+        <div class="text">受取利息（営業外収益）</div>
+      </div>
+      <div class="note-reveal">📌 金額は少額でも区分を正しく処理することが重要。財務分析で本業とその他を区別するために必要。</div>
+    </div>
+  </details>
+
+  <hr class="divider">
+
+  <!-- 問題5 -->
+  <h2>問題 5 / 5　2つの取引の科目判別</h2>
+  <div class="callout gray">
+    <span class="callout-icon">📄</span>
+    <div class="callout-body">
+      新メニュー開発のため、料理研究家にレシピ開発を依頼し報酬20万円を支払った。また、スタッフ向けのユニフォームを新調し8万円を支払った。<br>
+      <strong>2つの科目とその違いをペアで議論しよう。</strong>
+    </div>
+  </div>
+  <blockquote>ヒント：どちらも会社のための支出。誰に・何のために払ったかで科目が変わる。</blockquote>
+  <details class="toggle">
+    <summary>解答・フィードバックを見る</summary>
+    <div class="toggle-body">
+      <div class="answer-reveal">
+        <div class="label">解答例</div>
+        <div class="text">
+          レシピ開発 → 外注費（業務委託費）<br>
+          ユニフォーム → 消耗品費（少額の場合）または被服費
+        </div>
+      </div>
+      <div class="note-reveal">📌 同じ「支払い」でも性質が違えば科目が異なる。「外注費」を「業務委託費」と呼ぶ会社も多い。</div>
+    </div>
+  </details>
+
+  <!-- ==================== -->
+  <!-- クライアントの違い -->
+  <!-- ==================== -->
+  <div class="section-header" id="client">
+    <h1>🏢 クライアントによる科目の違い</h1>
+  </div>
+  <p class="text-gray text-sm">03:20〜03:50</p>
+
+  <p>同じ取引でも、<strong>会社・業種・税理士の方針</strong>によって科目名が異なることがあります。</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>取引の内容</th>
+        <th>科目名の例 A</th>
+        <th>科目名の例 B</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>アルバイトへの給与</td>
+        <td><span class="tag tag-default">雑給</span></td>
+        <td><span class="tag tag-gray">給料手当</span> <span class="tag tag-gray">アルバイト給</span></td>
+      </tr>
+      <tr>
+        <td>フリーランスへの報酬</td>
+        <td><span class="tag tag-default">外注費</span></td>
+        <td><span class="tag tag-gray">業務委託費</span> <span class="tag tag-gray">支払報酬</span></td>
+      </tr>
+      <tr>
+        <td>消耗品の購入</td>
+        <td><span class="tag tag-default">消耗品費</span></td>
+        <td><span class="tag tag-gray">雑費（少額の場合）</span></td>
+      </tr>
+      <tr>
+        <td>携帯電話代</td>
+        <td><span class="tag tag-default">通信費</span></td>
+        <td><span class="tag tag-gray">電話料金</span> <span class="tag tag-gray">諸会費</span></td>
+      </tr>
+      <tr>
+        <td>店舗の修繕</td>
+        <td><span class="tag tag-default">修繕費</span></td>
+        <td><span class="tag tag-gray">建物修繕費</span> <span class="tag tag-gray">維持管理費</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout yellow">
+    <span class="callout-icon">💬</span>
+    <div class="callout-body">
+      <b>ディスカッション（5〜7分）</b>
+      「科目名が違うと何が困る？　なぜ会社によって違うのか？」<br>
+      → ペアで考え、全体で共有しましょう
+    </div>
+  </div>
+
+  <div class="callout blue">
+    <span class="callout-icon">✅</span>
+    <div class="callout-body">
+      <b>まとめポイント</b>
+      ・「正式な科目名」というルールはなく、会社の慣習・税理士の方針・業界標準が影響する<br>
+      ・実務では必ずクライアントの <strong>科目表（勘定科目一覧）</strong> を確認してから作業する<br>
+      ・迷ったときは担当者に確認する！
+    </div>
+  </div>
+
+  <!-- ==================== -->
+  <!-- まとめ -->
+  <!-- ==================== -->
+  <div class="section-header" id="summary">
+    <h1>✅ まとめ・振り返り</h1>
+  </div>
+  <p class="text-gray text-sm">03:50〜04:00</p>
+
+  <ol class="nlist">
+    <li>損益計算書は「<strong>収益 - 費用 = 利益</strong>」の構造で成り立っている</li>
+    <li>勘定科目は取引の性質を正確に分類するための「<strong>ラベル</strong>」</li>
+    <li>判断に迷ったら「<strong>何を得た / 何を失ったか</strong>」から考える</li>
+    <li>科目名は会社・業種・税理士によって異なる → <strong>必ず科目表を確認</strong></li>
+    <li>実務では「<strong>なぜその科目か</strong>」を説明できることが重要</li>
+  </ol>
+
+  <div class="callout green" style="margin-top:24px">
+    <span class="callout-icon">🎓</span>
+    <div class="callout-body">
+      <b>本日の研修、お疲れ様でした！</b><br>
+      これからクライアントの帳簿を見るときは、まず科目一覧を確認し、「なぜこの科目名なのか？」を考える習慣をつけましょう。質問があればいつでも聞いてください！
+    </div>
+  </div>
+
+</div><!-- /page-wrap -->
+</div><!-- /main -->
+
+<script>
+  const sections = document.querySelectorAll('[id]');
+  const links = document.querySelectorAll('.sidebar-item[href^="#"]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector(`.sidebar-item[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => obs.observe(s));
+</script>
+
+
+</body></html>
