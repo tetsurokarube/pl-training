@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>コンテンツリセット</title>
+  <style>
+    body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #f7f6f3; }
+    .box { background: #fff; border-radius: 12px; padding: 40px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,.1); max-width: 400px; }
+    h2 { margin-bottom: 12px; }
+    p  { color: #9b9a97; margin-bottom: 24px; font-size: 14px; }
+    .btn { background: #e03e3e; color: #fff; border: none; padding: 12px 28px; border-radius: 6px; font-size: 15px; cursor: pointer; }
+    .btn:hover { background: #c73232; }
+    .status { margin-top: 20px; font-size: 14px; color: #37352f; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>📥 コンテンツをリセット</h2>
+    <p>Firebaseのデータを削除し、元の研修資料コンテンツを読み込みます。<br>現在の内容は上書きされます。</p>
+    <button class="btn" onclick="doReset()">リセット実行</button>
+    <div class="status" id="status"></div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyAfb_tsYUp-Vp1PgsSDaZ487EFfGEfDKjk",
+      authDomain: "pl-training-4b448.firebaseapp.com",
+      projectId: "pl-training-4b448",
+      storageBucket: "pl-training-4b448.firebasestorage.app",
+      messagingSenderId: "251592877189",
+      appId: "1:251592877189:web:9ccb443abf38f0fc9175ec"
+    });
+    const db = firebase.firestore();
+
+    async function doReset() {
+      document.getElementById('status').textContent = '削除中...';
+      try {
+        await db.collection('documents').doc('main').delete();
+        document.getElementById('status').textContent = '✓ 完了！エディタに移動します...';
+        setTimeout(() => { location.href = 'editor.html'; }, 1500);
+      } catch(e) {
+        document.getElementById('status').textContent = 'エラー: ' + e.message;
+      }
+    }
+  </script>
+</body>
+</html>
