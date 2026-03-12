@@ -16,7 +16,7 @@
 <body>
   <div class="box">
     <h2>📥 コンテンツをリセット</h2>
-    <p>Firebaseのデータを削除し、元の研修資料コンテンツを読み込みます。<br>現在の内容は上書きされます。</p>
+    <p>元の研修資料コンテンツをFirebaseに書き込みます。<br>現在の内容は上書きされます。</p>
     <button class="btn" onclick="doReset()">リセット実行</button>
     <div class="status" id="status"></div>
   </div>
@@ -34,14 +34,130 @@
     });
     const db = firebase.firestore();
 
+    const INITIAL_CONTENT = {
+      time: Date.now(),
+      version: "2.30.7",
+      blocks: [
+        { type: 'paragraph', data: { text: '対象：新卒（簿記知識ほぼなし）　|　研修時間：4時間　|　想定業種：飲食店　|　形式：座学 + ペアワーク' } },
+        { type: 'header', data: { text: '📋 研修の目的・アジェンダ', level: 2 } },
+        { type: 'header', data: { text: '研修の目的', level: 3 } },
+        { type: 'list', data: { style: 'ordered', items: ['損益計算書（P/L）の基礎概念を理解する','各取引に対して適切な勘定科目を判別できる','クライアントによって勘定科目名が異なることを理解し、実務に対応できる'] }},
+        { type: 'header', data: { text: '本日のスケジュール', level: 3 } },
+        { type: 'table', data: { withHeadings: true, content: [['時間','内容','形式'],['00:00〜00:30','アイスブレイク・ペアワーク','お金の流れを話し合おう'],['00:30〜01:00','簿記の基礎','借方・貸方・5要素 + ミニQ&A'],['01:00〜01:30','損益計算書とは','全体構造の理解'],['01:30〜01:40','☕ 休憩',''],['01:40〜02:10','損益計算書の全科目解説','飲食店の具体例つき'],['02:10〜03:20','✏️ 演習：科目判別ペアワーク','ペア議論 → 発表 → FB'],['03:20〜03:50','クライアントによる科目の違い','実例 + ディスカッション'],['03:50〜04:00','まとめ・振り返り・Q&A','全体']] }},
+        { type: 'delimiter', data: {} },
+        { type: 'header', data: { text: '🧊 アイスブレイク', level: 2 } },
+        { type: 'header', data: { text: 'ペアワーク（3分）', level: 3 } },
+        { type: 'quote', data: { text: '飲食店を経営するとしたら、どんなお金の出入りがあるか？　思いつく限り挙げてみよう！', caption: '', alignment: 'left' } },
+        { type: 'header', data: { text: '手順', level: 3 } },
+        { type: 'list', data: { style: 'ordered', items: ['ペアになる：隣の人とペアを組んでください','話し合い（3分）：飲食店のお金の出入りをできるだけ多く挙げる','全体発表：各ペアから1〜2個、全体に共有'] }},
+        { type: 'header', data: { text: 'ファシリテーターメモ', level: 3 } },
+        { type: 'list', data: { style: 'unordered', items: ['出てきたキーワード例：売上（料理・ドリンク）、食材仕入れ、家賃、人件費、光熱費、広告費 など','「それ、実は会計では○○科目って言うんです！」と後の解説に自然につなげる','発言を板書や画面に残すと科目解説へのブリッジになる'] }},
+        { type: 'delimiter', data: {} },
+        { type: 'header', data: { text: '📚 簿記の基礎', level: 2 } },
+        { type: 'header', data: { text: '会計とは何か', level: 3 } },
+        { type: 'paragraph', data: { text: '会計とは「お金の動きを記録・整理・報告する仕組み」です。' } },
+        { type: 'list', data: { style: 'unordered', items: ['📝 記録する：日々の取引を仕訳として記録する','🗂 整理する：科目ごとに集計して帳簿をつくる','📊 報告する：損益計算書・貸借対照表などの決算書を作成する'] }},
+        { type: 'header', data: { text: 'なぜ必要なの？', level: 3 } },
+        { type: 'list', data: { style: 'unordered', items: ['経営者が「もうかっているか」を確認するため','税金の計算のため','取引先・銀行に経営状況を示すため'] }},
+        { type: 'header', data: { text: 'ミニQ&A（受講者への問いかけ）', level: 3 } },
+        { type: 'quote', data: { text: 'みなさんなら、飲食店を経営したとき、どの数字を一番知りたいですか？', caption: '→ 自由に発言してもらい、その回答が P/L のどこに出てくるか予告する', alignment: 'left' } },
+        { type: 'header', data: { text: '会計の5要素', level: 3 } },
+        { type: 'paragraph', data: { text: 'すべての取引は、以下の5つの要素のいずれかに分類されます。' } },
+        { type: 'list', data: { style: 'unordered', items: ['🏦 <b>資産</b>：会社が持っているもの（現金、食材在庫、厨房設備 など）','📋 <b>負債</b>：返さないといけないもの（買掛金、借入金 など）','💎 <b>純資産</b>：資産 - 負債の自己資本（資本金 など）','📈 <b>収益</b>：入ってくるもの（売上高、受取利息 など）','📉 <b>費用</b>：かかるもの（仕入、給料、家賃 など）'] }},
+        { type: 'header', data: { text: '決算書の2つの柱', level: 3 } },
+        { type: 'paragraph', data: { text: '会計では主に2種類の決算書が使われます。今日は <b>損益計算書（P/L）</b> を中心に学びます。' } },
+        { type: 'header', data: { text: 'ペアで確認', level: 3 } },
+        { type: 'paragraph', data: { text: '「以下の3つはそれぞれ5要素のどれ？」<br>① お店の厨房設備（冷蔵庫）<br>② 食材仕入れの未払い分<br>③ 今月の料理の売上' } },
+        { type: 'quote', data: { text: '① <b>資産</b>（会社が持っているもの）、② <b>負債</b>（返さないといけないもの）、③ <b>収益</b>（入ってくるもの）', caption: '解答', alignment: 'left' } },
+        { type: 'header', data: { text: '借方・貸方とは', level: 3 } },
+        { type: 'paragraph', data: { text: '仕訳は必ず「借方（左）」と「貸方（右）」の2面で記録します。<b>借方合計 = 貸方合計（必ず一致）</b>' } },
+        { type: 'list', data: { style: 'unordered', items: ['<b>借方（かりかた）= 左</b>：資産の増加・費用の発生','<b>貸方（かしかた）= 右</b>：負債の増加・収益の発生・資産の減少'] }},
+        { type: 'header', data: { text: '例）食材を2万円、現金で仕入れた', level: 3 } },
+        { type: 'table', data: { withHeadings: true, content: [['借方（左）','金額','貸方（右）','金額'],['仕入','20,000円','現金','20,000円']] }},
+        { type: 'header', data: { text: 'ペアで仕訳してみよう', level: 3 } },
+        { type: 'paragraph', data: { text: '「水道代1万円を現金で払った」→ 借方は何？　貸方は何？' } },
+        { type: 'quote', data: { text: '借方：<b>水道光熱費 10,000円</b> ／ 貸方：<b>現金 10,000円</b><br>💡 「費用が発生（借方）」して「現金が減った（貸方）」', caption: '解答', alignment: 'left' } },
+        { type: 'delimiter', data: {} },
+        { type: 'header', data: { text: '📊 損益計算書（P/L）', level: 2 } },
+        { type: 'paragraph', data: { text: '損益計算書（P/L：Profit & Loss Statement）とは、一定期間の「収益」と「費用」をまとめ、利益を算出する決算書です。' } },
+        { type: 'header', data: { text: 'P/Lの流れ', level: 3 } },
+        { type: 'paragraph', data: { text: '① 売上高（料理・ドリンクの売上）<br>－ ② 売上原価（食材・飲料の仕入れ）<br>＝ <b>売上総利益（粗利）</b><br>－ ③ 販売費及び一般管理費（家賃・給料・光熱費 など）<br>＝ <b>営業利益</b>（本業での稼ぎ）<br>± ④ 営業外損益（受取利息・支払利息 など）<br>＝ <b>経常利益</b>（通常の事業活動での利益）<br>± ⑤ 特別損益（設備売却益・災害損失 など）<br>＝ <b>当期純利益</b>（最終的な利益）' } },
+        { type: 'header', data: { text: '詳細な科目の内訳', level: 3 } },
+        { type: 'table', data: { withHeadings: true, content: [['項目','説明'],['売上高','料理・ドリンクの売上'],['− 売上原価','食材の仕入代金'],['= 売上総利益（粗利）','売上高 - 売上原価'],['− 販売費・一般管理費','家賃・給料・光熱費 など'],['= 営業利益','本業での稼ぎ'],['± 営業外損益','受取利息・支払利息 など'],['= 経常利益','通常の事業活動での利益'],['± 特別損益','設備売却・災害損失 など'],['= 当期純利益','最終的な利益']] }},
+        { type: 'header', data: { text: '科目解説① 売上高・売上原価', level: 3 } },
+        { type: 'paragraph', data: { text: '<b>💰 売上高</b><br>商品やサービスを提供して得た収入。飲食店なら「料理の販売」「ドリンクの販売」「テイクアウト」。レジを通ったすべての売上が対象。' } },
+        { type: 'paragraph', data: { text: '<b>🛒 仕入高（売上原価）</b><br>売上を生むために使った商品・食材の費用。計算式：期首在庫 + 仕入 - 期末在庫 = 売上原価' } },
+        { type: 'header', data: { text: 'ペアで考えよう', level: 3 } },
+        { type: 'paragraph', data: { text: '「新しいランチメニューの食材を3万円分仕入れた」→ どの科目？　なぜそう思う？' } },
+        { type: 'quote', data: { text: '<b>仕入高（売上原価）</b><br>📌 売上を生み出すために使った食材・飲料の費用が売上原価。「仕入」「食材費」と呼ぶ会社もある。', caption: '解答', alignment: 'left' } },
+        { type: 'header', data: { text: '科目解説② 販売費及び一般管理費（飲食店の例）', level: 3 } },
+        { type: 'list', data: { style: 'unordered', items: ['<b>給料手当</b>：正社員の給与・賞与','<b>雑給</b>：アルバイト・パートへの支払い','<b>法定福利費</b>：社会保険料（会社負担分）','<b>地代家賃</b>：店舗の家賃・駐車場代','<b>水道光熱費</b>：電気・ガス・水道代','<b>通信費</b>：電話・インターネット代','<b>広告宣伝費</b>：チラシ・SNS・グルメサイト掲載費','<b>消耗品費</b>：割り箸・ナプキン・洗剤など','<b>修繕費</b>：設備・内装の修理費用','<b>減価償却費</b>：厨房設備・内装を年数で按分','<b>外注費</b>：業務委託・フリーランスへの報酬','<b>雑費</b>：上記に当てはまらない少額費用'] }},
+        { type: 'header', data: { text: '科目解説③ 営業外損益・特別損益', level: 3 } },
+        { type: 'paragraph', data: { text: '<b>📥 営業外収益</b>：本業以外から得た収益（受取利息、雑収入（自販機手数料）など）' } },
+        { type: 'paragraph', data: { text: '<b>📤 営業外費用</b>：本業以外で発生した費用（支払利息（借入金の利息）など）' } },
+        { type: 'paragraph', data: { text: '<b>⭐ 特別利益</b>：臨時・例外的な利益（固定資産売却益（古い厨房機器を売却））' } },
+        { type: 'paragraph', data: { text: '<b>⚠️ 特別損失</b>：臨時・例外的な損失（災害損失、固定資産除却損（廃棄）など）' } },
+        { type: 'header', data: { text: 'ペアで考えよう', level: 3 } },
+        { type: 'paragraph', data: { text: '「開業10年の厨房フードプロセッサーを廃棄した」→ どの科目？' } },
+        { type: 'quote', data: { text: '<b>固定資産除却損（特別損失）</b><br>📌 臨時・例外的な損失なので「特別損失」に区分。営業外費用ではない点に注意。', caption: '解答', alignment: 'left' } },
+        { type: 'delimiter', data: {} },
+        { type: 'header', data: { text: '✏️ 演習：科目判別ペアワーク', level: 2 } },
+        { type: 'paragraph', data: { text: '時間：02:10〜03:20　全5問' } },
+        { type: 'header', data: { text: '手順', level: 3 } },
+        { type: 'list', data: { style: 'ordered', items: ['ペアで話し合い（各問5分）：取引シナリオを読み、「どの科目か」「なぜそう判断したか」を議論する','各ペア発表：科目名と判断理由を全体に発表。他のペアの意見も聞いてみよう','講師フィードバック：正解の解説 + 「他業種では科目名がどう変わるか」を紹介'] }},
+        { type: 'header', data: { text: '判断の手順（ヒント）', level: 3 } },
+        { type: 'list', data: { style: 'ordered', items: ['取引は「何を得た / 何を失ったか」を確認','5要素（資産・負債・純資産・収益・費用）のどれか？','収益・費用なら → 損益計算書の科目表で探す'] }},
+        { type: 'delimiter', data: {} },
+        { type: 'header', data: { text: '問題 1 / 5：給与の支払い', level: 3 } },
+        { type: 'paragraph', data: { text: '<b>シナリオ：</b>飲食店の店長が、今月のアルバイトスタッフ10名分の給与として合計80万円を銀行振込で支払った。' } },
+        { type: 'paragraph', data: { text: '<b>ヒント：</b> 正社員の給与と区別されることが多い。アルバイト・パートへの支払いは？' } },
+        { type: 'quote', data: { text: '<b>雑給</b>（アルバイト給与）\n📌 会社によっては「給料手当」に含める場合も。クライアントの科目表を必ず確認！', caption: '解答例', alignment: 'left' } },
+        { type: 'header', data: { text: '問題 2 / 5：販促費用の処理', level: 3 } },
+        { type: 'paragraph', data: { text: '<b>シナリオ：</b>人気グルメサイトへの月額掲載料3万円と、近隣へのチラシ印刷・配布費用5万円を支払った。' } },
+        { type: 'paragraph', data: { text: '<b>ヒント：</b> どちらも「お客様を呼び込むための費用」。同じ科目でまとめる？別々に計上する？' } },
+        { type: 'quote', data: { text: '<b>広告宣伝費</b>（どちらも販促目的のため同一科目でOK）\n📌 会社によっては「販売促進費」「PR費」と呼ぶことも。', caption: '解答例', alignment: 'left' } },
+        { type: 'header', data: { text: '問題 3 / 5：設備の修理費', level: 3 } },
+        { type: 'paragraph', data: { text: '<b>シナリオ：</b>店舗の冷蔵ショーケースが故障し、修理費用15万円を支払った。なお、この冷蔵庫は固定資産として計上済みである。' } },
+        { type: 'paragraph', data: { text: '<b>ヒント：</b> 「修繕」か「新たな資産の取得（資本的支出）」か。資産の価値を維持する修理であれば費用として扱う。' } },
+        { type: 'quote', data: { text: '<b>修繕費</b>（資産の価値を維持するための費用）\n📌 大規模な改良（価値向上）は固定資産に計上することも。判断が難しいケースはクライアントに確認。', caption: '解答例', alignment: 'left' } },
+        { type: 'header', data: { text: '問題 4 / 5：銀行からの利息', level: 3 } },
+        { type: 'paragraph', data: { text: '<b>シナリオ：</b>月末に銀行から通知が来た。事業用の銀行口座に利息が2,500円振り込まれていた。' } },
+        { type: 'paragraph', data: { text: '<b>ヒント：</b> 本業の売上ではない。本業以外から得た収益はどの区分？' } },
+        { type: 'quote', data: { text: '<b>受取利息（営業外収益）</b>\n📌 金額は少額でも区分を正しく処理することが重要。財務分析で本業とその他を区別するために必要。', caption: '解答例', alignment: 'left' } },
+        { type: 'header', data: { text: '問題 5 / 5：2つの取引の科目判別', level: 3 } },
+        { type: 'paragraph', data: { text: '<b>シナリオ：</b>新メニュー開発のため、料理研究家にレシピ開発を依頼し報酬20万円を支払った。また、スタッフ向けのユニフォームを新調し8万円を支払った。<b>2つの科目とその違いをペアで議論しよう。</b>' } },
+        { type: 'paragraph', data: { text: '<b>ヒント：</b> どちらも会社のための支出。誰に・何のために払ったかで科目が変わる。' } },
+        { type: 'quote', data: { text: 'レシピ開発 → <b>外注費</b>（業務委託費）\nユニフォーム → <b>消耗品費</b>（少額の場合）または被服費\n📌 同じ「支払い」でも性質が違えば科目が異なる。「外注費」を「業務委託費」と呼ぶ会社も多い。', caption: '解答例', alignment: 'left' } },
+        { type: 'delimiter', data: {} },
+        { type: 'header', data: { text: '🏢 クライアントによる科目の違い', level: 2 } },
+        { type: 'paragraph', data: { text: '同じ取引でも、<b>会社・業種・税理士の方針</b>によって科目名が異なることがあります。' } },
+        { type: 'header', data: { text: '科目名の違い例', level: 3 } },
+        { type: 'table', data: { withHeadings: true, content: [['取引の内容','科目名の例 A','科目名の例 B'],['アルバイトへの給与','雑給','給料手当、アルバイト給'],['フリーランスへの報酬','外注費','業務委託費、支払報酬'],['消耗品の購入','消耗品費','雑費（少額の場合）'],['携帯電話代','通信費','電話料金、諸会費'],['店舗の修繕','修繕費','建物修繕費、維持管理費']] }},
+        { type: 'header', data: { text: 'ディスカッション（5〜7分）', level: 3 } },
+        { type: 'quote', data: { text: '「科目名が違うと何が困る？　なぜ会社によって違うのか？」\n→ ペアで考え、全体で共有しましょう', caption: '', alignment: 'left' } },
+        { type: 'header', data: { text: 'まとめポイント', level: 3 } },
+        { type: 'list', data: { style: 'unordered', items: ['「正式な科目名」というルールはなく、会社の慣習・税理士の方針・業界標準が影響する','実務では必ずクライアントの <b>科目表（勘定科目一覧）</b> を確認してから作業する','迷ったときは担当者に確認する！'] }},
+        { type: 'delimiter', data: {} },
+        { type: 'header', data: { text: '✅ まとめ・振り返り', level: 2 } },
+        { type: 'list', data: { style: 'ordered', items: ['損益計算書は「<b>収益 - 費用 = 利益</b>」の構造で成り立っている','勘定科目は取引の性質を正確に分類するための「<b>ラベル</b>」','判断に迷ったら「<b>何を得た / 何を失ったか</b>」から考える','科目名は会社・業種・税理士によって異なる → <b>必ず科目表を確認</b>','実務では「<b>なぜその科目か</b>」を説明できることが重要'] }},
+        { type: 'header', data: { text: 'クロージングメッセージ', level: 3 } },
+        { type: 'paragraph', data: { text: '本日の研修、お疲れ様でした！\n\nこれからクライアントの帳簿を見るときは、まず科目一覧を確認し、「なぜこの科目名なのか？」を考える習慣をつけましょう。質問があればいつでも聞いてください！' } }
+      ]
+    };
+
     async function doReset() {
-      document.getElementById('status').textContent = '削除中...';
+      document.getElementById('status').textContent = '書き込み中...';
       try {
-        await db.collection('documents').doc('main').delete();
+        await db.collection('documents').doc('main').set({
+          title: '損益計算書の基礎と勘定科目研修',
+          blocks: INITIAL_CONTENT,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
         document.getElementById('status').textContent = '✓ 完了！エディタに移動します...';
         setTimeout(() => { location.href = 'editor.html'; }, 1500);
       } catch(e) {
         document.getElementById('status').textContent = 'エラー: ' + e.message;
+        console.error(e);
       }
     }
   </script>
