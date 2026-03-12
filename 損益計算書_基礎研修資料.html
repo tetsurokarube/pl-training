@@ -1436,5 +1436,143 @@
   sections.forEach(s => obs.observe(s));
 </script>
 
+<!-- ===== 編集ツールバー ===== -->
+<style>
+  #edit-toolbar {
+    position: fixed; top: 0; left: 0; right: 0; height: 44px;
+    background: #2f3437; color: #fff;
+    display: flex; align-items: center; padding: 0 16px; gap: 6px;
+    z-index: 9999; font-family: sans-serif; font-size: 13px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  }
+  #edit-toolbar.hidden { display: none; }
+  #edit-toolbar button {
+    background: rgba(255,255,255,.15); border: none; color: #fff;
+    padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 13px;
+  }
+  #edit-toolbar button:hover { background: rgba(255,255,255,.28); }
+  #edit-toolbar .sep { width: 1px; height: 20px; background: rgba(255,255,255,.2); margin: 0 4px; }
+  #edit-toolbar .status { margin-left: auto; font-size: 12px; color: rgba(255,255,255,.6); }
+  #edit-toolbar .status.saving { color: #f0b429; }
+  #edit-toolbar .status.saved  { color: #68d391; }
+  #edit-toolbar .status.error  { color: #fc8181; }
+
+  #edit-toggle-btn {
+    position: fixed; bottom: 24px; right: 24px;
+    background: #2f3437; color: #fff; border: none;
+    padding: 10px 20px; border-radius: 24px; cursor: pointer;
+    font-size: 14px; font-family: sans-serif;
+    box-shadow: 0 4px 12px rgba(0,0,0,.3); z-index: 9998;
+  }
+  #edit-toggle-btn:hover { background: #454b4f; }
+
+  .page-wrap[contenteditable="true"] { outline: none; }
+  .page-wrap[contenteditable="true"] *:hover { outline: 1px dashed rgba(100,100,255,.3); }
+</style>
+
+<div id="edit-toolbar" class="hidden">
+  <button onclick="fmt('bold')"><b>B</b></button>
+  <button onclick="fmt('italic')"><i>I</i></button>
+  <button onclick="fmt('underline')"><u>U</u></button>
+  <div class="sep"></div>
+  <button onclick="fmtBlock('h1')">H1</button>
+  <button onclick="fmtBlock('h2')">H2</button>
+  <button onclick="fmtBlock('h3')">H3</button>
+  <button onclick="fmtBlock('p')">本文</button>
+  <div class="sep"></div>
+  <button onclick="fmtColor('#f6e05e')" style="background:#f6e05e;color:#333">マーカー</button>
+  <button onclick="fmtColor('#fed7d7')" style="background:#fed7d7;color:#333">赤</button>
+  <button onclick="fmtColor('')">解除</button>
+  <div class="sep"></div>
+  <button onclick="saveNow()">💾 保存</button>
+  <button onclick="exitEdit()" style="background:rgba(255,100,100,.3)">✕ 編集終了</button>
+  <span class="status" id="toolbar-status">—</span>
+</div>
+
+<button id="edit-toggle-btn" onclick="enterEdit()">✏️ 編集モード</button>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script>
+  firebase.initializeApp({
+    apiKey: "AIzaSyAfb_tsYUp-Vp1PgsSDaZ487EFfGEfDKjk",
+    authDomain: "pl-training-4b448.firebaseapp.com",
+    projectId: "pl-training-4b448",
+    storageBucket: "pl-training-4b448.firebasestorage.app",
+    messagingSenderId: "251592877189",
+    appId: "1:251592877189:web:9ccb443abf38f0fc9175ec"
+  });
+  const db = firebase.firestore();
+  const docRef = db.collection('pages').doc('pl-main');
+  const pageWrap = document.getElementById('top');
+  const toolbar = document.getElementById('edit-toolbar');
+  const toggleBtn = document.getElementById('edit-toggle-btn');
+  const statusEl = document.getElementById('toolbar-status');
+  let saveTimer = null;
+
+  // ===== 起動時：Firebaseからコンテンツ読み込み =====
+  (async () => {
+    try {
+      const snap = await docRef.get();
+      if (snap.exists && snap.data().html) {
+        pageWrap.innerHTML = snap.data().html;
+      }
+    } catch(e) { console.warn('Firebase load error:', e); }
+  })();
+
+  // ===== 編集モード =====
+  function enterEdit() {
+    pageWrap.contentEditable = 'true';
+    toolbar.classList.remove('hidden');
+    toggleBtn.style.display = 'none';
+    document.body.style.paddingTop = '44px';
+    setStatus('', '編集中');
+    pageWrap.addEventListener('input', scheduleSave);
+  }
+
+  function exitEdit() {
+    pageWrap.contentEditable = 'false';
+    toolbar.classList.add('hidden');
+    toggleBtn.style.display = '';
+    document.body.style.paddingTop = '';
+    pageWrap.removeEventListener('input', scheduleSave);
+    saveNow();
+  }
+
+  // ===== 保存 =====
+  function scheduleSave() {
+    clearTimeout(saveTimer);
+    setStatus('saving', '入力中...');
+    saveTimer = setTimeout(saveNow, 2000);
+  }
+
+  async function saveNow() {
+    clearTimeout(saveTimer);
+    setStatus('saving', '保存中...');
+    try {
+      await docRef.set({ html: pageWrap.innerHTML, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      setStatus('saved', '保存済み ✓');
+    } catch(e) {
+      setStatus('error', '保存エラー: ' + e.message);
+      console.error(e);
+    }
+  }
+
+  function setStatus(type, text) {
+    statusEl.className = 'status ' + type;
+    statusEl.textContent = text;
+  }
+
+  // ===== 書式設定 =====
+  function fmt(cmd) { document.execCommand(cmd, false, null); }
+
+  function fmtBlock(tag) { document.execCommand('formatBlock', false, tag); }
+
+  function fmtColor(color) {
+    if (!color) { document.execCommand('removeFormat', false, null); return; }
+    document.execCommand('hiliteColor', false, color);
+  }
+</script>
 
 </body></html>
